@@ -1,8 +1,9 @@
 CC = gcc -std=gnu99
-CFLAGS =
+CFLAGS = -Wall -Wextra -O3
 LDLIBS = -lm
 
-progress: progress.o
+example: progress.o example.o
+
 .PHONY: clean
 clean:
-	$(RM) progress progress.o
+	$(RM) progress progress.o example.o

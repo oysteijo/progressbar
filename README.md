@@ -1,5 +1,7 @@
 # Progress bar in ANSI C for ascii terminals
 
+![progreesbar.png](progressbar.png)
+
 This is a really simple progressbar implementation in ANSI C99.
 I want it to be beautiful yet simple. General yet not requiring
 much configuration.
@@ -19,7 +21,7 @@ int main()
 ```
 
 I have added some flexibility in the leading text by having the function variadic, just like a printf()
-You can hench call the function like:
+You can hence call the function like:
 
 ```c
         progress_ascii( i, maxvalue, "(%4d/%4d) ", i, maxvalue);
@@ -28,7 +30,7 @@ You can hench call the function like:
 ## Estimated time
 
 I have added the feature to estimate the ETA of a long process. This feature
-sets a start time when the call to progress_ascii() gets 0 as it first
+sets a start time when the call to `progress_ascii()` gets 0 as it first
 argument.
 
 Please note that you probably want to call the function with a final 100%

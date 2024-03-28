@@ -28,7 +28,7 @@
 #define KCYN  "\x1B[36m"
 #define KWHT  "\x1B[37m"
 
-char *partial_blocks[] = {
+static char *partial_blocks[] = {
     "",
     "\u258F", /*  ▏ LEFT ONE EIGHTH BLOCK */
     "\u258E", /*  ▎ LEFT ONE QUARTER BLOCK */
@@ -148,20 +148,5 @@ void progress_ascii( int x, int n, const char *fmt, ... )
 	printf("| %3d%% %s", (int)(ratio*100), etabuffer);
 	printf( x == n ? "\n" : "\r");
 	fflush( stdout );
-}
-
-#include <stdlib.h>
-int main( int argc, char *argv[] )
-{
-    int maxvalue = 100;
-    if(  argc > 1 )
-        maxvalue = atoi( argv[1]);
-
-    for ( int i = 0; i <= maxvalue; i++ ){
-        progress_ascii( i, maxvalue, "(%4d/%4d) ", i, maxvalue);
-        usleep(50000);
-    }
-
-    return 0;
 }
 
