@@ -43,12 +43,12 @@ static char *partial_blocks[] = {
 /* gets the current screen column width */
 static unsigned short getcols(int fd)
 {
-	const unsigned short default_tty = 80;
-	unsigned short termwidth = 0;
-	const unsigned short default_notty = 0;
-	if(!isatty(fd)) {
-		return default_notty;
-	}
+    const unsigned short default_tty = 80;
+    unsigned short termwidth = 0;
+    const unsigned short default_notty = 0;
+    if(!isatty(fd)) {
+        return default_notty;
+    }
 #if __WIN32
     HANDLE console;
     CONSOLE_SCREEN_BUFFER_INFO info;
@@ -67,18 +67,18 @@ static unsigned short getcols(int fd)
 #else  /* Not Windows */
 
 #if defined(TIOCGSIZE)
-	struct ttysize win;
-	if(ioctl(fd, TIOCGSIZE, &win) == 0) {
-		termwidth = win.ts_cols;
-	}
+    struct ttysize win;
+    if(ioctl(fd, TIOCGSIZE, &win) == 0) {
+        termwidth = win.ts_cols;
+    }
 #elif defined(TIOCGWINSZ)
-	struct winsize win;
-	if(ioctl(fd, TIOCGWINSZ, &win) == 0) {
-		termwidth = win.ws_col;
-	}
+    struct winsize win;
+    if(ioctl(fd, TIOCGWINSZ, &win) == 0) {
+        termwidth = win.ws_col;
+    }
 #endif
 #endif  /* Not Windows */
-	return termwidth == 0 ? default_tty : termwidth;
+    return termwidth == 0 ? default_tty : termwidth;
 }
 
 static void write_eta( char *buffer, const char *label, int value  )
@@ -91,6 +91,16 @@ static void write_eta( char *buffer, const char *label, int value  )
     value /= 60;
     sprintf( buffer, "%s: %02d:%02d (hh:mm)", label, value/60, value % 60);
 }
+
+/** progress_ascii
+ * 
+ *  @param x an integer in range 0..n which indicates the progress level to print
+ *  the progress bar at. When called with 0, a timer for ETA calculation is initalised.
+ *  When the x = n (100%) the Total time is calculated and reported and newline is fed.
+ *  @param n an integer, usually held constant, to hold the maximum value of x.
+ *  @param fmt a printf formated string whch will appear on the left side of
+ *  the progressbar.
+ */
 
 void progress_ascii( int x, int n, const char *fmt, ... )
 {
@@ -113,12 +123,12 @@ void progress_ascii( int x, int n, const char *fmt, ... )
         time(&start_time);
     }
 
-	int w = getcols( STDOUT_FILENO ) - EXTRA_WIDTH - len - strlen(etabuffer);
-	if( w < 1 ) return;
+    int w = getcols( STDOUT_FILENO ) - EXTRA_WIDTH - len - strlen(etabuffer);
+    if( w < 1 ) return;
 
-	// Calculuate the ratio of complete-to-incomplete.
-	double ratio = x/(double)n;
-	int   c      = ratio * w;
+    // Calculuate the ratio of complete-to-incomplete.
+    double ratio = x/(double)n;
+    int   c      = ratio * w;
     int partial  = (int) nearbyint( ((ratio*w)-c) * 8);
 
     time_t now;
@@ -134,19 +144,21 @@ void progress_ascii( int x, int n, const char *fmt, ... )
     }
 
     /* The print job itself */
-	printf("%s|", label );
-	for (int i=0; i<c; i++)
+    printf("%s|", label );
+    for (int i=0; i<c; i++)
         printf("\x1B[38;2;0;%d;0m\x1B[48;2;100;100;100m\u2588", (int) (100 + (100*((float)i/(float)w))) );
+    if ( c == 0 )
+        printf("\x1B[38;2;0;100;0m\x1B[48;2;100;100;100m");
     printf("%s", partial_blocks[partial]);
     printf(KNRM);
     printf("\x1B[38;2;100;100;100m");
     for (int i=c+(!!partial); i<w; i++) printf("\u2588");
 
-	// ANSI Control codes to go back to the
-	// previous line and clear it.
+    // ANSI Control codes to go back to the
+    // previous line and clear it.
     printf(KNRM);
-	printf("| %3d%% %s", (int)(ratio*100), etabuffer);
-	printf( x == n ? "\n" : "\r");
-	fflush( stdout );
+    printf("| %3d%% %s", (int)(ratio*100), etabuffer);
+    printf( x == n ? "\n" : "\r");
+    fflush( stdout );
 }
 
