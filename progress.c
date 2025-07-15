@@ -117,9 +117,9 @@ void progress_ascii( int x, int n, const char *fmt, ... )
     va_end( ap2 );
 
     /* eta: --:-- (hh:mm) */
-    static time_t start_time;
+    static time_t start_time = 0;
     char etabuffer[40] = { '\0' };
-    if ( x == 0){
+    if ( x == 0 && start_time == 0){
         time(&start_time);
     }
 
