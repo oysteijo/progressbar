@@ -7,9 +7,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+#include <stdint.h>
 #include <unistd.h> 
 #include <math.h> 
 #include <time.h> 
+#include <assert.h> 
 #if __WIN32
 #include <windows.h>
 #define EXTRA_WIDTH 27
@@ -81,15 +83,25 @@ static unsigned short getcols(int fd)
     return termwidth == 0 ? default_tty : termwidth;
 }
 
-static void write_eta( char *buffer, const char *label, int value  )
+static void write_eta( char *buffer, const char *label, uint64_t value  )
 {
+	/* Value in seconds */
     if ( value < 3600 ){
-        sprintf( buffer, "%s: %02d:%02d (mm:ss)", label, value/60, value % 60);
+        sprintf( buffer, "%s: %02lu:%02lu (mm:ss)", label, value/60, value % 60);
         return;
     }
     /* FIXME - It can be longer. It will be bad when it's more than 99 hours */
-    value /= 60;
-    sprintf( buffer, "%s: %02d:%02d (hh:mm)", label, value/60, value % 60);
+    value /= 60; /* convert value into minutes */
+	if ( value < 24 * 60 ) {
+		sprintf( buffer, "%s: %02lu:%02lu (hh:mm)", label, value/60, value % 60);
+		return;
+	}
+    value /= 60; /* convert value into hours */
+	if ( value < 100 * 24 ){
+		sprintf( buffer, "%s: %02lu:%02lu (dd:hh)", label, value/24, value % 24);
+		return;
+	}
+	sprintf( buffer, "%s: --:-- (dd:hh)", label); /* A long time */
 }
 
 /** progress_ascii
@@ -104,6 +116,8 @@ static void write_eta( char *buffer, const char *label, int value  )
 
 void progress_ascii( int x, int n, const char *fmt, ... )
 {
+	assert( n >= x );
+	assert( x >= 0 );
     va_list ap1, ap2;
     int len;
 
@@ -133,13 +147,13 @@ void progress_ascii( int x, int n, const char *fmt, ... )
 
     time_t now;
     time(&now);
-    int elapsed = (int)(now-start_time);
+    uint64_t elapsed = (uint64_t)(now-start_time);
     if ( x == 0){
         sprintf( etabuffer, "eta: --:-- (mm:ss)" );
     } else if ( x == n ){
         write_eta(etabuffer, " in", elapsed );
     } else {
-        int eta = elapsed * ( n - x ) / x;
+        uint64_t eta = elapsed * ( n - x ) / x;
         write_eta(etabuffer, "eta", eta );
     }
 
@@ -160,5 +174,6 @@ void progress_ascii( int x, int n, const char *fmt, ... )
     printf("| %3d%% %s", (int)(ratio*100), etabuffer);
     printf( x == n ? "\n" : "\r");
     fflush( stdout );
+	if( x == n )
+		start_time = 0;
 }
-
