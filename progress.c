@@ -85,23 +85,23 @@ static unsigned short getcols(int fd)
 
 static void write_eta( char *buffer, const char *label, uint64_t value  )
 {
-	/* Value in seconds */
+    /* Value in seconds */
     if ( value < 3600 ){
         sprintf( buffer, "%s: %02lu:%02lu (mm:ss)", label, value/60, value % 60);
         return;
     }
     /* FIXME - It can be longer. It will be bad when it's more than 99 hours */
     value /= 60; /* convert value into minutes */
-	if ( value < 24 * 60 ) {
-		sprintf( buffer, "%s: %02lu:%02lu (hh:mm)", label, value/60, value % 60);
-		return;
-	}
+    if ( value < 24 * 60 ) {
+        sprintf( buffer, "%s: %02lu:%02lu (hh:mm)", label, value/60, value % 60);
+        return;
+    }
     value /= 60; /* convert value into hours */
-	if ( value < 100 * 24 ){
-		sprintf( buffer, "%s: %02lu:%02lu (dd:hh)", label, value/24, value % 24);
-		return;
-	}
-	sprintf( buffer, "%s: --:-- (dd:hh)", label); /* A long time */
+    if ( value < 100 * 24 ){
+        sprintf( buffer, "%s: %02lu:%02lu (dd:hh)", label, value/24, value % 24);
+        return;
+    }
+    sprintf( buffer, "%s: --:-- (dd:hh)", label); /* A long time */
 }
 
 /** progress_ascii
@@ -116,8 +116,8 @@ static void write_eta( char *buffer, const char *label, uint64_t value  )
 
 void progress_ascii( int x, int n, const char *fmt, ... )
 {
-	assert( n >= x );
-	assert( x >= 0 );
+    assert( n >= x );
+    assert( x >= 0 );
     va_list ap1, ap2;
     int len;
 
@@ -174,6 +174,6 @@ void progress_ascii( int x, int n, const char *fmt, ... )
     printf("| %3d%% %s", (int)(ratio*100), etabuffer);
     printf( x == n ? "\n" : "\r");
     fflush( stdout );
-	if( x == n )
-		start_time = 0;
+    if( x == n )
+        start_time = 0;
 }
