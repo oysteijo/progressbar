@@ -38,3 +38,28 @@ value as well. In that case the total spent time is reported.
 
 So... Make sure that you call the function with both 0 at start and 100%-value at the end.
 
+## Tips and caveats
+If you have a very long run with frequent updates, remember that printing an progressbar like this also takes
+resources. This is especially true if you in addition run it on a remote machine over SSH or something. In that
+care the host machine will use resource to encrypt the text and the client has to decrypt. It can hence be a lot
+of overload if you call this function too often.
+
+To mitigate such overload you can limit the nuber of calls by adding a modulo calc befor calling. like :
+```c
+    if( (i % 100 ) == 0 )
+         progress_ascii( i, maxvalue, "(%4d/%4d) ", i, maxvalue);
+```
+Or if you want a update each second you can do something like:
+```c
+#include <time.h>
+..
+    static time_t prev_update = 0;
+    for ( int i = 0; i < maxvalue; i++ ){
+        /* Do something */
+        if ( i == 0 || time(NULL) - prev_update > 1 ){
+            progress_ascii( i, maxvalue, "(%4d/%4d) ", i, maxvalue);
+            time( &prev_update );
+        }
+    }
+```
+
